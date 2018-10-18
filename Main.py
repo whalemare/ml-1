@@ -8,9 +8,9 @@ from sklearn import tree
 import pydotplus
 
 
-def makePdf(percent, classifier):
+def make_pdf(percent, m_classifier):
     dot_data = StringIO.StringIO()
-    tree.export_graphviz(classifier, out_file=dot_data)
+    tree.export_graphviz(m_classifier, out_file=dot_data)
     graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
     graph.write_png("graph" + str(percent) + ".png")
 
@@ -30,13 +30,13 @@ for experiment in experiments:
 
     for line in open('tae.data', 'r'):
         line = line.split(",")
-        line = map(int, line)
+        line = map(float, line)
         data.append(line)
 
     allData = np.array(data)
 
-    x = allData[:, :4]
-    y = allData[:, 5]
+    x = allData[:, :7]
+    y = allData[:, 8]
 
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=trainPercent / 100.0)
 
@@ -56,4 +56,4 @@ for experiment in experiments:
     print "Guessed:", guessed_num
     print "Percent:", 100.0 * guessed_num / len(y_test)
     print ""
-    makePdf(trainPercent, classifier)
+    make_pdf(trainPercent, classifier)
