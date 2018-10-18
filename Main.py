@@ -1,6 +1,19 @@
+import StringIO
+
 import numpy as np
+import pydot
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
+from sklearn import tree
+import pydotplus
+
+
+def makePdf(percent, classifier):
+    dot_data = StringIO.StringIO()
+    tree.export_graphviz(classifier, out_file=dot_data)
+    graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
+    graph.write_png("graph" + str(percent) + ".png")
+
 
 experiments = [
     [1, 60, 40],
@@ -9,45 +22,38 @@ experiments = [
     [4, 90, 10]
 ]
 
-data = []
+for experiment in experiments:
+    trainPercent = experiment[1]
 
-for line in open('tae.data', 'r'):
-    line = line.split(",")
-    line = map(int, line)
-    data.append(line)
+    print "Experiment: #", experiment[0], ", trainPercent =", trainPercent, "%"
+    data = []
 
-allData = np.array(data)
+    for line in open('tae.data', 'r'):
+        line = line.split(",")
+        line = map(int, line)
+        data.append(line)
 
-x = allData[:, :4]
-y = allData[:, 5]
+    allData = np.array(data)
 
-x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.6)
+    x = allData[:, :4]
+    y = allData[:, 5]
 
-print len(y)
-print len(y_train)
-print len(y_test)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=trainPercent / 100.0)
 
+    # Train
 
-# Train
-# (Признаки, целевые классы)
-# classifier = DecisionTreeClassifier().fit(x_train, y_train)
+    classifier = DecisionTreeClassifier(max_depth=5).fit(x_train, y_train)
 
-# укажем длину (глубину) дерева
-classifier = DecisionTreeClassifier(max_depth=5).fit(x_train, y_train)
+    y_predicted = classifier.predict(x_test)
 
-# Предсказать классы для x_test
-y_predicted = classifier.predict(x_test)
+    guessed_num = 0
 
-print y_predicted
+    for i in range(0, len(y_predicted)):
+        if y_predicted[i] == y_test[i]:
+            guessed_num += 1
 
-# Оценим точность предсказания
-
-guessed_num = 0
-
-for i in range(0, len(y_predicted)):
-    if y_predicted[i] == y_test[i]:
-        guessed_num += 1
-
-print "Total:", len(y_test)
-print "Guessed:", guessed_num
-print "Percent:", 100.0 * guessed_num / len(y_test)
+    print "Total:", len(y_test)
+    print "Guessed:", guessed_num
+    print "Percent:", 100.0 * guessed_num / len(y_test)
+    print ""
+    makePdf(trainPercent, classifier)
