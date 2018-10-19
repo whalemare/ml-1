@@ -42,7 +42,7 @@ for experiment in experiments:
 
     # Train
 
-    classifier = DecisionTreeClassifier(max_depth=5).fit(x_train, y_train)
+    classifier = DecisionTreeClassifier(max_depth=4).fit(x_train, y_train)
 
     y_predicted = classifier.predict(x_test)
 
