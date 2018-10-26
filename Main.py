@@ -8,11 +8,13 @@ from sklearn import tree
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 
+
 def make_pdf(percent, m_classifier):
     dot_data = StringIO.StringIO()
     tree.export_graphviz(m_classifier, out_file=dot_data)
     graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
     graph.write_png("graph" + str(percent) + ".png")
+
 
 experiments = [
     [1, 60, 40],
